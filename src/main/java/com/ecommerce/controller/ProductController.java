@@ -1,0 +1,51 @@
+package com.ecommerce.controller;
+
+import com.ecommerce.model.Product;
+import com.ecommerce.service.CategoryService;
+import com.ecommerce.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+
+@RestController
+public class ProductController {
+    @Autowired
+    private ProductService productService;
+
+    @GetMapping("/api/public/products")
+    public ResponseEntity<List<Product>> getProducts(){
+        List<Product> products=productService.getAllProducts();
+        return new ResponseEntity<>(products,HttpStatus.OK);
+    }
+
+    @PostMapping("/api/admin/{categoryId}/products")
+    public ResponseEntity<String> createProduct(@RequestBody Product product, @PathVariable Long categoryId){
+        productService.createProduct(categoryId,product);
+        return new ResponseEntity<>("Product added successfully",HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/api/admin/products/{productId}")
+    public ResponseEntity<String> deleteProduct(@PathVariable long productId){
+        try {
+            productService.deleteProduct(productId);
+            return ResponseEntity.ok("Product deleted successfully");
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(),e.getStatusCode());
+        }
+    }
+
+    @PutMapping("/api/admin/products/{productId}")
+    public ResponseEntity<String> updateProduct(@PathVariable long productId, @RequestBody Product product){
+        try {
+            Product savedProduct=productService.updateProduct(product,productId);
+            return new ResponseEntity<>("Product updated with Id "+productId,HttpStatus.OK);
+        }
+        catch (ResponseStatusException e){
+            return new ResponseEntity<>(e.getReason(),e.getStatusCode());
+        }
+    }
+}
