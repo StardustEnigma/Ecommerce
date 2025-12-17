@@ -7,21 +7,25 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "customers")
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long userId;
+    private Long OrderID;
 
-    @Column(nullable = false)
-    private String userName;
+    @ManyToOne
+    @JoinColumn(name = "userId",nullable = false)
+    private User user;
 
-    @Column(nullable = false,unique = true)
-    private String email;
+    private double totalAmount;
 
-    LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
+    private LocalDateTime orderDate;
 
 }
