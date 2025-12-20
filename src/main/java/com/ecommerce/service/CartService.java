@@ -8,7 +8,7 @@ public interface CartService {
 
     double getTotal(Long cartId);
 
-    String clearCart(Long cartId);
+    void clearCart(Long cartId);
 
     Cart cartInfo(Long userId);
 

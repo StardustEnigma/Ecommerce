@@ -1,12 +1,14 @@
 package com.ecommerce.service;
 
+import com.ecommerce.exception.CartNotFoundException;
+import com.ecommerce.exception.EmptyCartException;
+import com.ecommerce.exception.OrderNotFoundException;
 import com.ecommerce.model.*;
-import com.ecommerce.repositories.CartItemRepository;
 import com.ecommerce.repositories.CartRepository;
-import com.ecommerce.repositories.OrderItemRepository;
 import com.ecommerce.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,15 +22,15 @@ public class OrderServiceImpl implements OrderService{
     @Autowired
     private CartRepository cartRepository;
 
+    @Transactional
     @Override
     public Order placeOrder(Long userId) {
         Cart cart=cartRepository.findByUserUserId(userId).
-                orElseThrow(()-> new RuntimeException("Cart Not Found"));
+                orElseThrow(()-> new CartNotFoundException("Cart Not Found for user id" +userId));
 
         if (cart.getCartItems().isEmpty()){
-            throw new RuntimeException("Cart is Empty");
+            throw new EmptyCartException("Cart is Empty");
         }
-
         Order order=new Order();
         order.setUser(cart.getUser());
         order.setOrderDate(LocalDateTime.now());
@@ -62,7 +64,7 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public Order orderDetails(Long orderId) {
         Order order=orderRepository.findById(orderId).
-                orElseThrow(()->new RuntimeException("Order Not Found"));
+                orElseThrow(()->new OrderNotFoundException("Order Not Found"));
 
         return order;
     }
@@ -70,7 +72,7 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public void cancelOrder(Long orderId) {
         Order order=orderRepository.findById(orderId).
-                orElseThrow(()->new RuntimeException("Order Not Found"));
+                orElseThrow(()->new OrderNotFoundException("Order Not Found"));
 
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);

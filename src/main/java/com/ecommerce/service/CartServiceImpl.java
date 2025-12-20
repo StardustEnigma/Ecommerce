@@ -1,5 +1,9 @@
 package com.ecommerce.service;
 
+import com.ecommerce.exception.CartItemNotFoundException;
+import com.ecommerce.exception.CartNotFoundException;
+import com.ecommerce.exception.ProductNotFoundException;
+import com.ecommerce.exception.UserNotFoundException;
 import com.ecommerce.model.Cart;
 import com.ecommerce.model.CartItem;
 
@@ -23,14 +27,14 @@ public class CartServiceImpl implements CartService{
     @Override
     public Cart getCartByUser(Long userId) {
         Cart cart=cartRepository.findByUserUserId(userId).
-                orElseThrow(()-> new RuntimeException("User Not Found"));
+                orElseThrow(()-> new UserNotFoundException("User Not Found"));
         return cart;
     }
 
     @Override
     public double getTotal(Long cartId) {
         Cart cart=cartRepository.findById(cartId).
-                orElseThrow(()-> new RuntimeException("Cart Not Found"));
+                orElseThrow(()-> new CartNotFoundException("Cart Not Found"));
 
         double total=0;
         for (CartItem item: cart.getCartItems()){
@@ -40,29 +44,29 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public String clearCart(Long cartId) {
+    public void clearCart(Long cartId) {
         Cart cart=cartRepository.findById(cartId).
-                orElseThrow(()->new RuntimeException("Cart Not Found"));
+                orElseThrow(()->new CartNotFoundException("Cart Not Found"));
 
         cart.getCartItems().clear();
         cartRepository.save(cart);
-        return "Cart cleared";
+
     }
 
     @Override
     public Cart cartInfo(Long userId) {
         Cart cart=cartRepository.findByUserUserId(userId).
-                orElseThrow(()->new RuntimeException("User Not Found"));
+                orElseThrow(()->new UserNotFoundException("User Not Found"));
         return cart;
     }
 
     @Override
     public Cart addProductToCart(Long userId, Long productId, int quantity) {
         Cart cart= cartRepository.findByUserUserId(userId).
-                orElseThrow(()->new RuntimeException("User Not Found"));
+                orElseThrow(()->new UserNotFoundException("User Not Found"));
 
         Product product=productRepository.findById(productId).
-                orElseThrow(()->new RuntimeException("Product Not Found"));
+                orElseThrow(()->new ProductNotFoundException("Product Not Found"));
 
         CartItem cartItem=cartItemRepository.findByCartAndProduct(cart,product).orElse(null);
 
@@ -82,31 +86,29 @@ public class CartServiceImpl implements CartService{
     @Override
     public Cart updateProductQuantity(Long userId, Long productId, int quantity) {
         Cart cart= cartRepository.findByUserUserId(userId).
-                orElseThrow(()->new RuntimeException("User Not Found"));
+                orElseThrow(()->new UserNotFoundException("User Not Found with id"+userId));
 
         Product product=productRepository.findById(productId).
-                orElseThrow(()->new RuntimeException("Product Not Found"));
+                orElseThrow(()->new ProductNotFoundException("Product Not Found"));
 
-        CartItem cartItem=cartItemRepository.findByCartAndProduct(cart,product).orElse(null);
-        if (cartItem==null){
-            addProductToCart(userId,productId,quantity);
-        }
-        else {
+        CartItem cartItem=cartItemRepository.findByCartAndProduct(cart,product).
+                orElseThrow(()->new CartItemNotFoundException("Product Not Found in cart"));
+
             cartItem.setQuantity(quantity);
-        }
+
         return cartRepository.save(cart);
     }
 
     @Override
     public Cart removeProductFromCart(Long userId, Long productId) {
         Cart cart= cartRepository.findByUserUserId(userId).
-                orElseThrow(()->new RuntimeException("User Not Found"));
+                orElseThrow(()->new UserNotFoundException("User Not Found with id"+userId));
 
         Product product=productRepository.findById(productId).
-                orElseThrow(()->new RuntimeException("Product Not Found"));
+                orElseThrow(()->new ProductNotFoundException("Product Not Found with id"+productId));
 
         CartItem cartItem=cartItemRepository.findByCartAndProduct(cart,product).
-                orElseThrow(()->new RuntimeException("Product Not in Cart"));
+                orElseThrow(()->new CartItemNotFoundException("Product Not in Cart"));
 
         cart.getCartItems().remove(cartItem);
 
