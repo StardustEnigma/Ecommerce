@@ -40,18 +40,18 @@ public class OrderServiceImpl implements OrderService{
         order.setStatus(OrderStatus.CREATED);
 
         List<OrderItem> orderItems=new ArrayList<>();
-
+        double totalAmount=0;
         for (CartItem item: cart.getCartItems()){
             OrderItem orderItem=new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(item.getProduct());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setPriceAtPurchase(item.getProduct().getProductPrice());
-
             orderItems.add(orderItem);
+            totalAmount+=orderItem.getPriceAtPurchase()*orderItem.getQuantity();
         }
         order.setOrderItems(orderItems);
-
+        order.setTotalAmount(totalAmount);
         Order saveOrder=orderRepository.save(order);
 
         cart.getCartItems().clear();
@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService{
         Order order=orderRepository.findById(orderId).
                 orElseThrow(()->new OrderNotFoundException("Order Not Found"));
 
-        if (!order.getUser().equals(user.getUserId())){
+        if (!order.getUser().getUserId().equals(user.getUserId())){
             throw new OrderOwnershipException("Order does not Belong to this user");
         }
         order.setStatus(OrderStatus.CANCELLED);
