@@ -36,4 +36,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleOrderNotFound(OrderNotFoundException ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleOrderOwnership(OrderOwnershipException ex){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
 }

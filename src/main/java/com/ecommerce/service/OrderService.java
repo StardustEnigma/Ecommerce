@@ -12,6 +12,6 @@ public interface OrderService {
 
     Order orderDetails(Long orderId);
 
-    void cancelOrder(Long orderId);
+    void cancelOrder(Long userId,Long orderId);
 
 }

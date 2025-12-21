@@ -1,11 +1,10 @@
 package com.ecommerce.service;
 
-import com.ecommerce.exception.CartNotFoundException;
-import com.ecommerce.exception.EmptyCartException;
-import com.ecommerce.exception.OrderNotFoundException;
+import com.ecommerce.exception.*;
 import com.ecommerce.model.*;
 import com.ecommerce.repositories.CartRepository;
 import com.ecommerce.repositories.OrderRepository;
+import com.ecommerce.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +20,16 @@ public class OrderServiceImpl implements OrderService{
     private OrderRepository orderRepository;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional
     @Override
     public Order placeOrder(Long userId) {
-        Cart cart=cartRepository.findByUserUserId(userId).
-                orElseThrow(()-> new CartNotFoundException("Cart Not Found for user id" +userId));
+        User user=userRepository.findById(userId).
+                orElseThrow(()-> new UserNotFoundException("User Not found"));
+        Cart cart=cartRepository.findByUser(user).
+                orElseThrow(()-> new CartNotFoundException("Cart Not Found for user"));
 
         if (cart.getCartItems().isEmpty()){
             throw new EmptyCartException("Cart is Empty");
@@ -70,10 +73,15 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
-    public void cancelOrder(Long orderId) {
+    public void cancelOrder(Long userId,Long orderId) {
+        User user=userRepository.findById(userId).
+                orElseThrow(()->new UserNotFoundException("Uer Not Found"));
         Order order=orderRepository.findById(orderId).
                 orElseThrow(()->new OrderNotFoundException("Order Not Found"));
 
+        if (!order.getUser().equals(user.getUserId())){
+            throw new OrderOwnershipException("Order does not Belong to this user");
+        }
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
     }
