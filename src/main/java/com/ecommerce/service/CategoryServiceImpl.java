@@ -8,10 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * Service implementation for category management.
- * Handles CRUD operations for product categories.
- */
+
 @Service
 public class CategoryServiceImpl implements CategoryService{
 
@@ -28,13 +25,7 @@ public class CategoryServiceImpl implements CategoryService{
         categoryRepository.save(category);
     }
 
-    /**
-     * Deletes a category by ID.
-     *
-     * @param categoryId the ID of the category to delete
-     * @return success message
-     * @throws CategoryNotFoundException if category doesn't exist
-     */
+
     @Override
     public String deleteCategory(Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
@@ -44,14 +35,6 @@ public class CategoryServiceImpl implements CategoryService{
         return "Category with ID " + categoryId + " deleted successfully";
     }
 
-    /**
-     * Updates a category's information.
-     *
-     * @param category the category with updated information
-     * @param categoryId the ID of the category to update
-     * @return the updated category
-     * @throws CategoryNotFoundException if category doesn't exist
-     */
     @Override
     public Category updateCategory(Category category, Long categoryId) {
         Category savedCategory = categoryRepository.findById(categoryId)

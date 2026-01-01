@@ -41,4 +41,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleOrderOwnership(OrderOwnershipException ex){
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
+    @ExceptionHandler
+    public ResponseEntity<String> handleCategoryNotFound(CategoryNotFoundException ex){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
 }
