@@ -41,9 +41,13 @@ public class SecurityConfig {
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                        "/h2-console/**",
+                        "/api/auth/**",
                         "/api/public/**"
-                ).permitAll()
+                ).permitAll().
+                requestMatchers("/api/users/**").
+                hasRole("USER").
+                requestMatchers("/api/admin/**").
+                hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
 

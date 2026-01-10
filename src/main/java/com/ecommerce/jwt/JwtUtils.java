@@ -10,6 +10,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 
 @Component
@@ -38,13 +40,18 @@ public class JwtUtils {
         }
         return null;
     }
-    public String generateTokenFromUsername(UserDetails userDetails){
-        String username=userDetails.getUsername();
-        return Jwts.builder().subject(username).
-                issuedAt(new Date()).
-                expiration(new Date((new Date()).
-                        getTime()+jwtExpirationMs))
-                .signWith(key()).compact();
+    public String generateToken(UserDetails userDetails){
+        List<String> roles=userDetails
+                .getAuthorities().stream().
+                map(GrantedAuthority::getAuthority).toList();
+
+
+        return Jwts.builder().subject(userDetails.getUsername())
+                .claims().add("roles",roles)
+                .issuedAt(new Date()).expiration(new Date(System.currentTimeMillis()+jwtExpirationMs))
+                .and()
+                .signWith((SecretKey) key())
+                .compact();
 
     }
 

@@ -45,4 +45,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleCategoryNotFound(CategoryNotFoundException ex){
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleUserExists(UserAlreadyExistsException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
 }

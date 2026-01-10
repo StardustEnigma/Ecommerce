@@ -21,7 +21,7 @@ public class DataInitializerConfig {
                 admin.setUserName("admin");
                 admin.setPassword(passwordEncoder.encode("adminPass"));
                 admin.setEnabled(true);
-                admin.setRoles(Set.of(Role.ROLE_ADMIN));
+                admin.setRoles(Set.of(Role.ROLE_ADMIN,Role.ROLE_USER));
                 admin.setEmail("admin@ecommerce.com");
                 userRepository.save(admin);
             }
